@@ -158,7 +158,12 @@ func ToBoolE(i interface{}) (bool, error) {
 		}
 		return false, nil
 	case string:
-		return strconv.ParseBool(i.(string))
+		str := i.(string)
+		if str != "" && str != "false" {
+			return true, nil
+		} else {
+			return false, nil
+		}
 	case json.Number:
 		v, err := ToInt64E(b)
 		if err == nil {
