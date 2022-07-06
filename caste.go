@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go/constant"
 	"html/template"
 	"reflect"
 	"strconv"
@@ -170,6 +171,8 @@ func ToBoolE(i interface{}) (bool, error) {
 			return v != 0, nil
 		}
 		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
+	case constant.Value:
+		return ToBoolE(constToInterface(i.(constant.Value)))
 	default:
 		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
 	}
@@ -1533,4 +1536,21 @@ func trimZeroDecimal(s string) string {
 		}
 	}
 	return s
+}
+
+func constToInterface(value constant.Value) interface{} {
+	switch value.Kind() {
+	case constant.Bool:
+		return constant.BoolVal(value)
+	case constant.String:
+		return constant.StringVal(value)
+	case constant.Int:
+		v, _ := constant.Int64Val(value)
+		return v
+	case constant.Float:
+		v, _ := constant.Float64Val(value)
+		return v
+	default:
+		return nil
+	}
 }
